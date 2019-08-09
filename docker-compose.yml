@@ -1,0 +1,205 @@
+version: '3'
+services:
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    volumes:
+      - xun-cx-db:/data
+
+  redis_commander:
+    container_name: redis_commander
+    hostname: redis_commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+
+  catalyst_deamon:
+    container_name: catalyst_deamon
+    image: catalyst_deamon:latest
+    build:
+      context: .
+      dockerfile: ./images/cat.deamon.Dockerfile
+    restart: always
+    command: ./daemon --data-dir blockchain --rpc-bind-ip 0.0.0.0 --enable-blockexplorer
+    volumes:
+      - catalyst-blockchain:/daemon/blockchain
+    ports:
+      - 17290:17290
+      - 17291:17291
+    expose:
+      - 17290
+      - 17291
+
+  catalyst_rpc_service: &cat_rpc_service
+    container_name: catalyst_rpc_service
+    image: catalyst_rpc_service:latest
+    build:
+      context: .
+      dockerfile: ./images/cat.rpc-service.Dockerfile
+    restart: always
+    command: ./rpc-service -w /wallet/${CAT_WALLET_FILE} -p ${CAT_WALLET_PASSWORD} --daemon-address ${CAT_DAEMON_ADDRESS} --daemon-port ${CAT_DAEMON_PORT} --rpc-legacy-security --bind-address 0.0.0.0 --bind-port 17280
+    volumes:
+      - catalyst-wallet:/wallet
+    ports:
+      - 17280:17280
+    depends_on:
+      - catalyst_deamon
+
+  catalyst_wallet:
+    <<: *cat_rpc_service
+    container_name: catalyst_wallet
+    working_dir: /wallet
+    command: sh -c '[ -e ${CAT_WALLET_FILE} ] && /rpc-service/wallet --remote-daemon ${CAT_DAEMON_ADDRESS}:${CAT_DAEMON_PORT} --wallet-file ${CAT_WALLET_FILE} --password ${CAT_WALLET_PASSWORD} || /rpc-service/wallet --remote-daemon ${CAT_DAEMON_ADDRESS}:${CAT_DAEMON_PORT}'
+
+  xun_deamon:
+    container_name: xun_deamon
+    image: xun_deamon:latest
+    build:
+      context: .
+      dockerfile: ./images/xun.deamon.Dockerfile
+    restart: always
+    command: ./daemon --data-dir blockchain --rpc-bind-ip 0.0.0.0 --log-level 2
+    volumes:
+      - xun-blockchain:/daemon/blockchain
+    ports:
+      - 30000:30000
+      - 31000:31000
+    expose:
+      - 30000
+      - 31000
+
+  xun_rpc_service: &xun_rpc_service
+    container_name: xun_rpc_service
+    image: xun_rpc_service:latest
+    build:
+      context: .
+      dockerfile: ./images/xun.rpc-service.Dockerfile
+    restart: always
+    command: ./rpc-service -w /wallet/${XUN_WALLET_FILE} -p ${XUN_WALLET_PASSWORD} --daemon-address ${XUN_DAEMON_ADDRESS} --daemon-port ${XUN_DAEMON_PORT} --bind-address 0.0.0.0 --bind-port 8070
+    volumes:
+      - xun-wallet:/wallet
+    ports:
+      - 8070:8070
+    depends_on:
+      - xun_deamon
+
+  xun_wallet:
+    <<: *xun_rpc_service
+    container_name: xun_wallet
+    working_dir: /wallet
+    command: sh -c '[ -e ${XUN_WALLET_FILE} ] && /rpc-service/wallet --remote-daemon ${XUN_DAEMON_ADDRESS}:${XUN_DAEMON_PORT} --wallet-file ${XUN_WALLET_FILE} --password ${XUN_WALLET_PASSWORD} || /rpc-service/wallet --remote-daemon ${XUN_DAEMON_ADDRESS}:${XUN_DAEMON_PORT}'
+
+  pool:
+    container_name: pool
+    image: pool:latest
+    build:
+      context: .
+      dockerfile: ./images/pool.Dockerfile
+      args:
+        TIME_ZONE: Asia/Yekaterinburg
+    environment:
+      - MODULE=ALL
+    depends_on:
+      - redis
+      - xun_rpc_service
+      - catalyst_rpc_service
+
+  pool_xun:
+    container_name: pool_xun
+    image: pool_xun:latest
+    build:
+      context: .
+      dockerfile: ./images/pool.xun.Dockerfile
+    environment:
+      - MODULE=ALL
+    ports:
+      - 4442:4442
+      - 4443:4443
+      - 4444:4444
+      - 8408:8408
+    expose:
+      - 4442
+      - 4443
+      - 4444
+      - 8408
+    depends_on:
+      - redis
+      - xun_rpc_service
+      - catalyst_rpc_service
+
+  pool_catalyst:
+    container_name: pool_catalyst
+    image: pool_catalyst:latest
+    build:
+      context: .
+      dockerfile: ./images/pool.cat.Dockerfile
+    environment:
+      - MODULE=ALL
+    ports:
+      - 5552:5552
+      - 5553:5553
+      - 5554:5554
+      - 8407:8407
+    expose:
+      - 5552
+      - 5553
+      - 5554
+      - 8407
+    depends_on:
+      - redis
+      - xun_rpc_service
+      - catalyst_rpc_service
+
+  # xun_site:
+  #   container_name: xun_site
+  #   image: xun_site:latest
+  #   build:
+  #     context: .
+  #     dockerfile: ./images/xun.website.Dockerfile
+  #   ports:
+  #     - "8020:80"
+  #   expose:
+  #     - 8020
+
+  # cat_site:
+  #   container_name: cat_site
+  #   image: cat_site:latest
+  #   build:
+  #     context: .
+  #     dockerfile: ./images/cat.website.Dockerfile
+  #   ports:
+  #     - "8040:80"
+  #   expose:
+  #     - 8040
+
+  # build:
+  #   container_name: cn_build
+  #   image: cn_build:latest
+  #   build:
+  #     context: .
+  #     dockerfile: ./images/build.Dockerfile
+  #   volumes:
+  #     - cn-build:/build
+  #   command: zsh
+
+volumes:
+  cn-catalyst-volume:
+    external: true
+
+volumes:
+  xun-cx-db:
+    external: true
+  catalyst-blockchain:
+    external: true
+  catalyst-wallet:
+    external: true
+  xun-blockchain:
+    external: true
+  xun-wallet:
+    external: true
