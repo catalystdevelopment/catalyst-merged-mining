@@ -1,5 +1,5 @@
 {
-  "poolHost": "cx-xun.cx-pool.gq",
+  "poolHost": "pool.cx-pool.gq",
   "coin": "catalyst",
   "symbol": "CX",
   "coinUnits": 10000000,
@@ -110,7 +110,7 @@
     "port": 8407,
     "blocks": 30,
     "payments": 30,
-    "password": "12345678",
+    "password": "andAnEerk33ws",
     "ssl": false,
     "trustProxyIP": true
   },
