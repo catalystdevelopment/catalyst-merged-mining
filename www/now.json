@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "name": "catalyst-merged",
+  "alias": [
+    "xun.cx-pool.gq"
+  ],
+  "builds": [
+    {
+      "src": "**",
+      "use": "@now/static"
+    }
+  ]
+}
