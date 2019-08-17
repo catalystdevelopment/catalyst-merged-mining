@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 services:
   redis:
     container_name: redis
@@ -7,17 +7,17 @@ services:
     volumes:
       - xun-cx-db:/data
 
-  redis_commander:
-    container_name: redis_commander
-    hostname: redis_commander
-    image: rediscommander/redis-commander:latest
-    restart: always
-    environment:
-      - REDIS_HOSTS=local:redis:6379
-    ports:
-      - "8081:8081"
-    depends_on:
-      - redis
+  # redis_commander:
+  #   container_name: redis_commander
+  #   hostname: redis_commander
+  #   image: rediscommander/redis-commander:latest
+  #   restart: "no"
+  #   environment:
+  #     - REDIS_HOSTS=local:redis:6379
+  #   ports:
+  #     - "8081:8081"
+  #   depends_on:
+  #     - redis
 
   catalyst_deamon:
     container_name: catalyst_deamon
@@ -25,8 +25,8 @@ services:
     build:
       context: .
       dockerfile: ./images/cat.deamon.Dockerfile
-    restart: always
-    command: ./daemon --data-dir blockchain --rpc-bind-ip 0.0.0.0 --enable-blockexplorer
+    restart: "no"
+    command: ./daemon --data-dir blockchain --rpc-bind-ip 0.0.0.0 --enable-blockexplorer --fee-amount 100000000 --fee-address cat1ZNRzo4gj5PiL6xnNoL52vHCRJo7JGicG4SJyhNPdfYhLV4LEf34gJaAcuiJjzfS3EZTaThRqLegVxddMa6cj6mTty5wDDq
     volumes:
       - catalyst-blockchain:/daemon/blockchain
     ports:
@@ -42,7 +42,7 @@ services:
     build:
       context: .
       dockerfile: ./images/cat.rpc-service.Dockerfile
-    restart: always
+    restart: "no"
     command: ./rpc-service -w /wallet/${CAT_WALLET_FILE} -p ${CAT_WALLET_PASSWORD} --daemon-address ${CAT_DAEMON_ADDRESS} --daemon-port ${CAT_DAEMON_PORT} --rpc-legacy-security --bind-address 0.0.0.0 --bind-port 17280
     volumes:
       - catalyst-wallet:/wallet
@@ -60,10 +60,11 @@ services:
   xun_deamon:
     container_name: xun_deamon
     image: xun_deamon:latest
+    mem_limit: 200000000
     build:
       context: .
       dockerfile: ./images/xun.deamon.Dockerfile
-    restart: always
+    restart: "no"
     command: ./daemon --data-dir blockchain --rpc-bind-ip 0.0.0.0 --log-level 2
     volumes:
       - xun-blockchain:/daemon/blockchain
@@ -77,10 +78,11 @@ services:
   xun_rpc_service: &xun_rpc_service
     container_name: xun_rpc_service
     image: xun_rpc_service:latest
+    mem_limit: 100000000
     build:
       context: .
       dockerfile: ./images/xun.rpc-service.Dockerfile
-    restart: always
+    restart: "no"
     command: ./rpc-service -w /wallet/${XUN_WALLET_FILE} -p ${XUN_WALLET_PASSWORD} --daemon-address ${XUN_DAEMON_ADDRESS} --daemon-port ${XUN_DAEMON_PORT} --bind-address 0.0.0.0 --bind-port 8070
     volumes:
       - xun-wallet:/wallet
@@ -188,9 +190,9 @@ services:
   #     - cn-build:/build
   #   command: zsh
 
-volumes:
-  cn-catalyst-volume:
-    external: true
+# volumes:
+#   cn-catalyst-volume:
+#     external: true
 
 volumes:
   xun-cx-db:

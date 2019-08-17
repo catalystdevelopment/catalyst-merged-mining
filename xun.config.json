@@ -1,14 +1,15 @@
 {
   "poolHost": "pool.cx-pool.gq",
-  "coin": "catalyst",
-  "symbol": "CX",
-  "coinUnits": 10000000,
-  "coinDecimalPlaces": 4,
-  "coinDifficultyTarget": 60,
+  "coin": "ultranote",
+  "symbol": "XUN",
+  "coinUnits": 1000000,
+  "coinDecimalPlaces": 6,
+  "coinDifficultyTarget": 120,
+  "childCoin": "catalyst",
   "daemonType": "bytecoin",
   "cnAlgorithm": "cryptonight_light",
   "cnVariant": 1,
-  "cnBlobType": 2,
+  "cnBlobType": 0,
   "logging": {
     "files": {
       "level": "info",
@@ -22,32 +23,34 @@
   },
   "poolServer": {
     "enabled": true,
+    "mergedMining": true,
     "clusterForks": 1,
-    "poolAddress": "cat1ZNRzo4gj5PiL6xnNoL52vHCRJo7JGicG4SJyhNPdfYhLV4LEf34gJaAcuiJjzfS3EZTaThRqLegVxddMa6cj6mTty5wDDq",
-    "intAddressPrefix": null,
+    "poolAddress": "Xun3Nt87A7KSz2WLvfdDb38q3VSWCbQnTP85CbmTgm7c6TeAGAufwVpWhUCi3piNvTe7UJmRez3DoHxayvSnBT2u7weqfTtwpL",
+    "poolChildAddress": "cat1ZNRzo4gj5PiL6xnNoL52vHCRJo7JGicG4SJyhNPdfYhLV4LEf34gJaAcuiJjzfS3EZTaThRqLegVxddMa6cj6mTty5wDDq",
+    "intAddressPrefix": "null",
     "blockRefreshInterval": 1000,
     "minerTimeout": 900,
     "ports": [
       {
-        "port": 5552,
+        "port": 4442,
         "difficulty": 20000,
         "desc": "Low end hardware"
       },
       {
-        "port": 5553,
+        "port": 4443,
         "difficulty": 50000,
         "desc": "Mid range hardware"
       },
       {
-        "port": 5554,
+        "port": 4444,
         "difficulty": 100000,
         "desc": "High end hardware"
       }
     ],
     "varDiff": {
-      "minDiff": 20000,
-      "maxDiff": 200000,
-      "targetTime": 60,
+      "minDiff": 10000,
+      "maxDiff": 2000000,
+      "targetTime": 30,
       "retargetTime": 30,
       "variancePercent": 30,
       "maxJump": 100
@@ -60,7 +63,7 @@
       "addressSeparator": "."
     },
     "shareTrust": {
-      "enabled": true,
+      "enabled": false,
       "min": 10,
       "stepDown": 3,
       "threshold": 10,
@@ -75,7 +78,7 @@
     "slushMining": {
       "enabled": false,
       "weight": 300,
-      "blockTime": 60,
+      "blockTime": 120,
       "lastBlockCheckRate": 1
     }
   },
@@ -85,20 +88,20 @@
     "maxAddresses": 50,
     "mixin": 3,
     "priority": 0,
-    "transferFee": 10000,
+    "transferFee": 100000,
     "dynamicTransferFee": true,
     "minerPayFee": true,
     "minPayment": 10000000,
-    "maxPayment": 50000000000,
-    "maxTransactionAmount": 5000000000,
-    "denomination": 10000000
+    "maxPayment": null,
+    "maxTransactionAmount": 0,
+    "denomination": 1000000
   },
   "blockUnlocker": {
     "enabled": true,
     "interval": 120,
-    "depth": 40,
+    "depth": 10,
     "poolFee": 3,
-    "devDonation": 0.0,
+    "devDonation": 0,
     "networkFee": 0.0,
     "fixBlockHeightRPC": false
   },
@@ -107,7 +110,7 @@
     "hashrateWindow": 600,
     "updateInterval": 60,
     "bindIp": "0.0.0.0",
-    "port": 8407,
+    "port": 8408,
     "blocks": 30,
     "payments": 30,
     "password": "andAnEerk33ws",
@@ -115,12 +118,16 @@
     "trustProxyIP": true
   },
   "daemon": {
+    "host": "xun_deamon",
+    "port": 31000
+  },
+  "childDaemon": {
     "host": "catalyst_deamon",
     "port": 17291
   },
   "wallet": {
-    "host": "catalyst_rpc_service",
-    "port": 17280
+    "host": "xun_rpc_service",
+    "port": 8070
   },
   "redis": {
     "host": "redis",
@@ -133,16 +140,22 @@
     "emailTemplate": "email_templates/default.txt",
     "emailSubject": {
       "emailAdded": "Your email was registered",
-      "workerConnected": "Worker connected",
-      "workerTimeout": "Worker stopped hashing",
-      "workerBanned": "Worker banned",
-      "payment": "We sent you a payment!"
+      "workerConnected": "Worker %WORKER_NAME% connected",
+      "workerTimeout": "Worker %WORKER_NAME% stopped hashing",
+      "workerBanned": "Worker %WORKER_NAME% banned",
+      "blockFound": "Block %HEIGHT% found !",
+      "blockUnlocked": "Block %HEIGHT% unlocked !",
+      "blockOrphaned": "Block %HEIGHT% orphaned !",
+      "payment": "We sent you a payment !"
     },
     "emailMessage": {
       "emailAdded": "Your email has been registered to receive pool notifications.",
       "workerConnected": "Your worker %WORKER_NAME% for address %MINER% is now connected from ip %IP%.",
       "workerTimeout": "Your worker %WORKER_NAME% for address %MINER% has stopped submitting hashes on %LAST_HASH%.",
       "workerBanned": "Your worker %WORKER_NAME% for address %MINER% has been banned.",
+      "blockFound": "Block found at height %HEIGHT% by miner %MINER% on %TIME%. Waiting maturity.",
+      "blockUnlocked": "Block mined at height %HEIGHT% with %REWARD% and %EFFORT% effort on %TIME%.",
+      "blockOrphaned": "Block orphaned at height %HEIGHT% :(",
       "payment": "A payment of %AMOUNT% has been sent to %ADDRESS% wallet."
     },
     "telegramMessage": {
@@ -157,11 +170,26 @@
   },
   "email": {
     "enabled": false,
-    "fromAddress": "cx-pool.gq <your@email.com>",
-    "transport": "mailgun",
+    "fromAddress": "your@email.com",
+    "transport": "sendmail",
+    "sendmail": {
+      "path": "/usr/sbin/sendmail"
+    },
+    "smtp": {
+      "host": "smtp.example.com",
+      "port": 587,
+      "secure": false,
+      "auth": {
+        "user": "username",
+        "pass": "password"
+      },
+      "tls": {
+        "rejectUnauthorized": false
+      }
+    },
     "mailgun": {
-      "key": "",
-      "domain": ""
+      "key": "your-private-key",
+      "domain": "mg.yourdomain"
     }
   },
   "telegram": {
@@ -187,7 +215,7 @@
     },
     "wallet": {
       "checkInterval": 60,
-      "rpcMethod": "getbalance"
+      "rpcMethod": "getBalance"
     }
   },
   "prices": {

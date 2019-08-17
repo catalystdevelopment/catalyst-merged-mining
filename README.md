@@ -1,5 +1,8 @@
 # Catalyst Merged Mining
 
+- `sh get-docker.sh`
+- `apt-get install docker-compose`
+
 - `docker volume create xun-blockchain`
 - `docker volume create catalyst-blockchain`
 - `docker volume create xun-wallet`

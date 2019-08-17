@@ -7,4 +7,4 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /daemon
 
-COPY bin/xun_daemon ./daemon
+COPY xun_daemon ./daemon

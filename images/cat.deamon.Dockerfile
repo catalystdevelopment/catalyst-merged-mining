@@ -3,4 +3,4 @@ MAINTAINER n8tb1t <n8tb1t@gmail.com>
 
 WORKDIR /daemon
 
-COPY bin/cat_daemon ./daemon
+COPY cat_daemon ./daemon
