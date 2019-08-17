@@ -21,3 +21,7 @@ AWS SETTINGS:
 
 SSL
 - Use https://github.com/n8tb1t/docker-repository/tree/master/compose/aws/ssl-proxy.
+
+## WWW
+
+The site is in `WWW` folder, it's better to host it on some free static server, to save traffic.
